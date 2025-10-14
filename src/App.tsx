@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { CalculatorInputs, CalculatorResults, CalculatorMode } from './types';
 import { calculateResults } from './utils/calculations';
 import { InputSection } from './components/InputSection';
