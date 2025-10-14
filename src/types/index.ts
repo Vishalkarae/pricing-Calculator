@@ -1,9 +1,13 @@
+export type CalculatorMode = 'chat' | 'voice';
+
 export interface CalculatorInputs {
-  x: number; // Total messages per conversation
+  mode: CalculatorMode; // Chat or Voice mode
+  x: number; // Total messages per conversation (Chat) OR total seconds per conversation (Voice)
   y: number; // Number of conversations
-  a: number; // Average words per user query
-  b: number; // Average words per AI response
-  tokenFactor: number; // Word-to-token factor
+  a: number; // Average words per user query (Chat) OR avg audio input per user message (Voice)
+  b: number; // Average words per AI response (Chat) OR avg audio output per agent message (Voice)
+  tokenFactor: number; // Word-to-token factor (Chat mode)
+  tokenFactorAudio: number; // Audio-to-token factor (Voice mode, e.g., 1 sec ≈ 50 tokens)
   cIn: number; // Cost per input token (₹)
   cOut: number; // Cost per output token (₹)
 }
@@ -27,6 +31,7 @@ export interface ModelPreset {
 
 export interface ModelCategory {
   name: string;
+  mode: CalculatorMode;
   presets: ModelPreset[];
 }
 
@@ -41,6 +46,7 @@ export const MODEL_PROVIDERS: ModelProvider[] = [
     categories: [
       {
         name: "Chat",
+        mode: "chat",
         presets: [
           {
             name: "Gemini Flash",
@@ -55,15 +61,16 @@ export const MODEL_PROVIDERS: ModelProvider[] = [
         ],
       },
       {
-        name: "Voice / Multimodal",
+        name: "Voice",
+        mode: "voice",
         presets: [
           {
-            name: "Gemini Voice (Low)",
+            name: "Gemini Voice Low",
             cIn: 0.0000145,
             cOut: 0.00003,
           },
           {
-            name: "Gemini Voice (High)",
+            name: "Gemini Voice High",
             cIn: 0.000058,
             cOut: 0.00012,
           },
@@ -76,6 +83,7 @@ export const MODEL_PROVIDERS: ModelProvider[] = [
     categories: [
       {
         name: "Chat",
+        mode: "chat",
         presets: [
           {
             name: "GPT-3.5 Turbo",
@@ -95,15 +103,16 @@ export const MODEL_PROVIDERS: ModelProvider[] = [
         ],
       },
       {
-        name: "Voice / Realtime",
+        name: "Voice",
+        mode: "voice",
         presets: [
           {
-            name: "GPT-4o-Mini-TTS",
+            name: "GPT-4o Mini-TTS",
             cIn: 0.0006,
             cOut: 0.0012,
           },
           {
-            name: "GPT-4o Realtime (High)",
+            name: "GPT-4o Realtime",
             cIn: 0.009,
             cOut: 0.018,
           },

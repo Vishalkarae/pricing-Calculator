@@ -1,11 +1,16 @@
 import { CalculatorInputs, CalculatorResults } from '../types';
 
 export function calculateResults(inputs: CalculatorInputs): CalculatorResults {
-  // Input tokens = tokenFactor × a × (x / 2) × y
-  const inputTokens = inputs.tokenFactor * inputs.a * (inputs.x / 2) * inputs.y;
+  // Determine which token factor to use based on mode
+  const tokenFactor = inputs.mode === 'chat' ? inputs.tokenFactor : inputs.tokenFactorAudio;
   
-  // Output tokens = tokenFactor × b × (x / 2) × y
-  const outputTokens = inputs.tokenFactor * inputs.b * (inputs.x / 2) * inputs.y;
+  // Chat Mode: Input tokens = a × (x / 2) × y × tokenFactor
+  // Voice Mode: Input tokens = a × (x / 2) × y × tokenFactor_audio
+  const inputTokens = inputs.a * (inputs.x / 2) * inputs.y * tokenFactor;
+  
+  // Chat Mode: Output tokens = b × (x / 2) × y × tokenFactor
+  // Voice Mode: Output tokens = b × (x / 2) × y × tokenFactor_audio
+  const outputTokens = inputs.b * (inputs.x / 2) * inputs.y * tokenFactor;
   
   // Total tokens = input tokens + output tokens
   const totalTokens = inputTokens + outputTokens;
@@ -27,22 +32,22 @@ export function calculateResults(inputs: CalculatorInputs): CalculatorResults {
   const perPairCost = totalPairs > 0 ? totalCost / totalPairs : 0;
   
   return {
-    inputTokens: Math.round(inputTokens * 10000) / 10000,
-    outputTokens: Math.round(outputTokens * 10000) / 10000,
-    totalTokens: Math.round(totalTokens * 10000) / 10000,
-    inputCost: Math.round(inputCost * 10000) / 10000,
-    outputCost: Math.round(outputCost * 10000) / 10000,
-    totalCost: Math.round(totalCost * 10000) / 10000,
-    perMessageCost: Math.round(perMessageCost * 10000) / 10000,
-    perPairCost: Math.round(perPairCost * 10000) / 10000,
+    inputTokens: Math.round(inputTokens * 100000000) / 100000000,
+    outputTokens: Math.round(outputTokens * 100000000) / 100000000,
+    totalTokens: Math.round(totalTokens * 100000000) / 100000000,
+    inputCost: Math.round(inputCost * 100000000) / 100000000,
+    outputCost: Math.round(outputCost * 100000000) / 100000000,
+    totalCost: Math.round(totalCost * 100000000) / 100000000,
+    perMessageCost: Math.round(perMessageCost * 100000000) / 100000000,
+    perPairCost: Math.round(perPairCost * 100000000) / 100000000,
   };
 }
 
 export function formatCurrency(amount: number): string {
-  return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}`;
+  return `₹${amount.toLocaleString('en-IN', { minimumFractionDigits: 8, maximumFractionDigits: 8 })}`;
 }
 
-export function formatNumber(num: number, decimals: number = 4): string {
+export function formatNumber(num: number, decimals: number = 8): string {
   return num.toLocaleString('en-IN', { 
     minimumFractionDigits: decimals, 
     maximumFractionDigits: decimals 
