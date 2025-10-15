@@ -1,45 +1,82 @@
-# Chat Cost Calculator
+# AI Cost Calculator
 
-A responsive web application for calculating the cost of chat conversations across different AI models. Built with React, TypeScript, and TailwindCSS.
+A responsive web application for estimating AI conversation costs across Chat and Voice modes. Built with React, TypeScript, and TailwindCSS.
 
 ## Features
 
-### Input Parameters
-- **x** — Total messages per conversation
-- **y** — Number of conversations (multiplies all costs)
-- **a** — Average words per user query
-- **b** — Average words per AI response
-- **tokenFactor** — Word-to-token factor (default: 1.3)
-- **C_in** — Cost per input token (₹)
-- **C_out** — Cost per output token (₹)
+### Mode Selection
+- **Chat Mode**: Calculate costs for text-based conversations
+- **Voice Mode**: Calculate costs for real-time voice/audio conversations
+- Easy toggle between modes with radio buttons
 
 ### Model Presets
-Quick-select buttons for popular AI models:
-- Gemini Flash
-- Gemini 2.5 Pro
-- OpenAI GPT-3.5 Turbo
-- OpenAI GPT-4
+Grouped dropdown with presets for:
+- **🔵 OpenAI**: gpt-4o, gpt-4o-mini, gpt-realtime, gpt-realtime-mini
+- **🟢 Gemini**: 1.5-flash, 2.0-flash, 2.5-flash, 2.5-flash-live, 2.0-flash-live-001, 2.5-flash-native-audio-latest
 
-### Real-time Calculations
-- Input tokens = tokenFactor × a × (x / 2) × y
-- Output tokens = tokenFactor × b × (x / 2) × y
-- Total tokens = input tokens + output tokens
-- Input cost = input tokens × C_in
-- Output cost = output tokens × C_out
-- Total cost = input cost + output cost
-- Per-message cost and per-pair cost
+Selecting a preset auto-fills:
+- Token conversion factors (wordToToken or audioToToken)
+- Cost per input token (C_in)
+- Cost per output token (C_out)
 
-### Export Features
-- **CSV Export** — Download complete calculation results
-- **Copy Total Cost** — Quick copy of total cost to clipboard
+### Input Parameters
 
-### Design Features
-- Responsive design for mobile and desktop
-- Clean, minimal UI with TailwindCSS
-- Color-coded result cards
-- Highlighted total cost
-- Input validation (no negative values)
-- Real-time updates as inputs change
+**Chat Mode**
+- `x` — Total messages per conversation
+- `a` — Average words per user query
+- `b` — Average words per AI response
+- `y` — Number of conversations
+- `wordToToken` — Word-to-token conversion factor
+- `C_in` — Cost per input token (₹)
+- `C_out` — Cost per output token (₹)
+
+**Voice Mode**
+- `T` — Total call duration (seconds)
+- `z` — User:AI speaking ratio (user/AI, e.g., 0.5 for 1:2 ratio)
+- `y` — Number of conversations
+- `audioToToken` — Tokens per second
+- `C_in` — Cost per input token (₹)
+- `C_out` — Cost per output token (₹)
+
+### Calculation Formulas
+
+**Chat Mode**
+```
+Win = a × (x / 2)
+Wout = b × (x / 2)
+Tin = wordToToken × Win
+Tout = wordToToken × Wout
+TotalCost = y × ((Tin × Cin) + (Tout × Cout))
+```
+
+**Voice Mode**
+```
+UserDuration = T × (z / (1 + z))
+AIDuration = T × (1 / (1 + z))
+Tin = audioToToken × UserDuration
+Tout = audioToToken × AIDuration
+TotalCost = y × ((Tin × Cin) + (Tout × Cout))
+```
+
+### Results Display
+- Input Tokens
+- Output Tokens
+- Total Tokens
+- Input Cost (₹)
+- Output Cost (₹)
+- Total Cost (₹)
+- Per-conversation Cost
+- Per-pair Cost
+
+All values displayed with **8 decimal precision**.
+
+### Additional Features
+- **CSV Export**: Download complete calculation results
+- **Copy Total Cost**: Quick copy to clipboard
+- **Reset Button**: Restore default values
+- **Responsive Design**: Works on mobile and desktop
+- **Real-time Updates**: Calculations update as you type
+- **Manual Override**: All auto-filled values can be edited
 
 ## Getting Started
 
@@ -70,40 +107,35 @@ npm run build
 
 The built files will be in the `dist` directory.
 
-## Usage
+## Model Presets
 
-1. **Set Parameters**: Enter your conversation parameters in the input section
-2. **Select Model**: Click a preset button to auto-fill pricing for popular models
-3. **View Results**: See real-time calculations in the results section
-4. **Export Data**: Use the CSV export or copy total cost buttons as needed
+### Chat Models
 
-## Formula Details
+| Provider | Model | wordToToken | C_in (₹) | C_out (₹) |
+|----------|-------|-------------|----------|-----------|
+| OpenAI   | gpt-4o | 1.3 | 0.0000249 | 0.000096 |
+| OpenAI   | gpt-4o-mini | 1.3 | 0.0000062 | 0.0000249 |
+| Gemini   | 2.5-flash | 1.3 | 0.000025 | 0.0001 |
+| Gemini   | 2.0-flash | 1.3 | 0.000022 | 0.00009 |
+| Gemini   | 1.5-flash | 1.3 | 0.00002 | 0.00008 |
 
-The calculator uses the following formulas:
+### Voice Models
 
-```
-Input tokens = tokenFactor × a × (x / 2) × y
-Output tokens = tokenFactor × b × (x / 2) × y
-Total tokens = input tokens + output tokens
-Input cost = input tokens × C_in
-Output cost = output tokens × C_out
-Total cost = input cost + output cost
-Per-message cost = total cost / (x × y)
-Per-pair cost = total cost / ((x × y) / 2)
-```
-
-Where:
-- `x/2` represents the average number of user queries per conversation
-- Each query-response pair is counted separately
-- `y` multiplies the entire calculation for multiple conversations
+| Provider | Model | audioToToken | C_in (₹) | C_out (₹) |
+|----------|-------|--------------|----------|-----------|
+| OpenAI   | gpt-realtime | 3.33 | 0.00016 | 0.00064 |
+| OpenAI   | gpt-realtime-mini | 3.33 | 0.000048 | 0.000192 |
+| Gemini   | 2.5-flash-native-audio-latest | 32 | 0.000031 | 0.000125 |
+| Gemini   | 2.0-flash-live-001 | 32 | 0.000028 | 0.000115 |
+| Gemini   | 2.5-flash-live | 32 | 0.000030 | 0.000120 |
 
 ## Technologies Used
 
 - **React 18** — UI framework
-- **TypeScript** — Type safety and developer experience
-- **TailwindCSS** — Utility-first CSS framework
-- **Vite** — Fast build tool and development server
-- **Lucide React** — Icon library
+- **TypeScript** — Type safety
+- **TailwindCSS** — Styling
+- **Vite** — Build tool
+- **Lucide React** — Icons
 
 ## Browser Support
 

@@ -1,19 +1,24 @@
 import { useState, useMemo } from 'react';
-import { CalculatorInputs, CalculatorResults, CalculatorMode } from './types';
+import { CalculatorInputs, CalculatorResults, CalculatorMode, MODEL_PRESETS } from './types';
 import { calculateResults } from './utils/calculations';
 import { InputSection } from './components/InputSection';
 import { ResultsSection } from './components/ResultsSection';
 
 const initialInputs: CalculatorInputs = {
-  mode: 'chat', // Default to chat mode
-  x: 10, // Total messages per conversation
-  y: 1,  // Number of conversations
-  a: 20, // Average words per user query
-  b: 50, // Average words per AI response
-  tokenFactor: 1.3, // Word-to-token factor
-  tokenFactorAudio: 50, // Audio-to-token factor (1 sec ≈ 50 tokens)
-  cIn: 0.000249, // Cost per input token (₹) - GPT-3.5 Turbo default
-  cOut: 0.000498, // Cost per output token (₹) - GPT-3.5 Turbo default
+  mode: 'chat',
+  // Chat mode
+  x: 10,
+  a: 20,
+  b: 50,
+  wordToToken: 1.3,
+  // Voice mode
+  T: 60,
+  z: 0.5,
+  audioToToken: 3.33,
+  // Common
+  y: 1,
+  cIn: 0.0000062,
+  cOut: 0.0000249,
 };
 
 function App() {
@@ -30,25 +35,36 @@ function App() {
     }));
   };
 
-  const handlePresetSelect = (cIn: number, cOut: number, mode: CalculatorMode) => {
-    setInputs(prev => ({
-      ...prev,
-      mode,
-      cIn,
-      cOut,
-    }));
+  const handlePresetSelect = (presetIndex: number) => {
+    const preset = MODEL_PRESETS[presetIndex];
+    if (preset) {
+      setInputs(prev => ({
+        ...prev,
+        mode: preset.mode,
+        ...(preset.mode === 'chat' 
+          ? { wordToToken: preset.tokenConversion }
+          : { audioToToken: preset.tokenConversion }
+        ),
+        cIn: preset.cIn,
+        cOut: preset.cOut,
+      }));
+    }
+  };
+
+  const handleReset = () => {
+    setInputs(initialInputs);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <h1 className="text-3xl font-bold text-gray-900">
-            Chat & Voice Cost Calculator
+            AI Cost Calculator
           </h1>
           <p className="mt-2 text-gray-600">
-            Calculate the cost of chat and voice conversations across different AI models
+            Estimate conversation costs for Chat and Voice AI models
           </p>
         </div>
       </header>
@@ -61,6 +77,7 @@ function App() {
             inputs={inputs}
             onInputChange={handleInputChange}
             onPresetSelect={handlePresetSelect}
+            onReset={handleReset}
           />
 
           {/* Results Section */}
@@ -76,9 +93,9 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="text-center text-gray-500 text-sm">
             <p>
-              Built with React and TypeScript • 
+              Built with React, TypeScript & Tailwind CSS • 
               Real-time calculations • 
-              Export to CSV support
+              8 decimal precision
             </p>
           </div>
         </div>

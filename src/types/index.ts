@@ -2,12 +2,20 @@ export type CalculatorMode = 'chat' | 'voice';
 
 export interface CalculatorInputs {
   mode: CalculatorMode; // Chat or Voice mode
-  x: number; // Total messages per conversation (Chat) OR total seconds per conversation (Voice)
+  
+  // Chat mode inputs
+  x: number; // Total messages per conversation (Chat only)
+  a: number; // Average words per user query (Chat only)
+  b: number; // Average words per AI response (Chat only)
+  wordToToken: number; // Word-to-token factor (Chat mode)
+  
+  // Voice mode inputs
+  T: number; // Total call duration in seconds (Voice only)
+  z: number; // User:AI speaking ratio (Voice only, e.g., 1:2 → 0.5)
+  audioToToken: number; // Tokens per second (Voice mode)
+  
+  // Common inputs
   y: number; // Number of conversations
-  a: number; // Average words per user query (Chat) OR avg audio input per user message (Voice)
-  b: number; // Average words per AI response (Chat) OR avg audio output per agent message (Voice)
-  tokenFactor: number; // Word-to-token factor (Chat mode)
-  tokenFactorAudio: number; // Audio-to-token factor (Voice mode, e.g., 1 sec ≈ 50 tokens)
   cIn: number; // Cost per input token (₹)
   cOut: number; // Cost per output token (₹)
 }
@@ -25,99 +33,95 @@ export interface CalculatorResults {
 
 export interface ModelPreset {
   name: string;
+  provider: string;
+  mode: CalculatorMode;
+  tokenConversion: number; // wordToToken for chat, audioToToken for voice
   cIn: number;
   cOut: number;
 }
 
-export interface ModelCategory {
-  name: string;
-  mode: CalculatorMode;
-  presets: ModelPreset[];
-}
-
-export interface ModelProvider {
-  name: string;
-  categories: ModelCategory[];
-}
-
-export const MODEL_PROVIDERS: ModelProvider[] = [
+export const MODEL_PRESETS: ModelPreset[] = [
+  // Voice Models
   {
-    name: "Gemini",
-    categories: [
-      {
-        name: "Chat",
-        mode: "chat",
-        presets: [
-          {
-            name: "Gemini Flash",
-            cIn: 0.0000062,
-            cOut: 0.0000249,
-          },
-          {
-            name: "Gemini 1.5 Pro",
-            cIn: 0.0001038,
-            cOut: 0.00083,
-          },
-        ],
-      },
-      {
-        name: "Voice",
-        mode: "voice",
-        presets: [
-          {
-            name: "Gemini Voice Low",
-            cIn: 0.0000145,
-            cOut: 0.00003,
-          },
-          {
-            name: "Gemini Voice High",
-            cIn: 0.000058,
-            cOut: 0.00012,
-          },
-        ],
-      },
-    ],
+    name: "gpt-realtime",
+    provider: "OpenAI",
+    mode: "voice",
+    tokenConversion: 3.33, // audioToToken
+    cIn: 0.00016,
+    cOut: 0.00064,
   },
   {
-    name: "OpenAI",
-    categories: [
-      {
-        name: "Chat",
-        mode: "chat",
-        presets: [
-          {
-            name: "GPT-3.5 Turbo",
-            cIn: 0.000249,
-            cOut: 0.000498,
-          },
-          {
-            name: "GPT-4-Mini",
-            cIn: 0.000415,
-            cOut: 0.00083,
-          },
-          {
-            name: "GPT-4-Turbo",
-            cIn: 0.00249,
-            cOut: 0.00498,
-          },
-        ],
-      },
-      {
-        name: "Voice",
-        mode: "voice",
-        presets: [
-          {
-            name: "GPT-4o Mini-TTS",
-            cIn: 0.0006,
-            cOut: 0.0012,
-          },
-          {
-            name: "GPT-4o Realtime",
-            cIn: 0.009,
-            cOut: 0.018,
-          },
-        ],
-      },
-    ],
+    name: "gpt-realtime-mini",
+    provider: "OpenAI",
+    mode: "voice",
+    tokenConversion: 3.33,
+    cIn: 0.000048,
+    cOut: 0.000192,
+  },
+  {
+    name: "2.5-flash-native-audio-latest",
+    provider: "Gemini",
+    mode: "voice",
+    tokenConversion: 32,
+    cIn: 0.000031,
+    cOut: 0.000125,
+  },
+  {
+    name: "2.0-flash-live-001",
+    provider: "Gemini",
+    mode: "voice",
+    tokenConversion: 32,
+    cIn: 0.000028,
+    cOut: 0.000115,
+  },
+  {
+    name: "2.5-flash-live",
+    provider: "Gemini",
+    mode: "voice",
+    tokenConversion: 32,
+    cIn: 0.000030,
+    cOut: 0.000120,
+  },
+  
+  // Chat Models
+  {
+    name: "gpt-4o",
+    provider: "OpenAI",
+    mode: "chat",
+    tokenConversion: 1.3, // wordToToken
+    cIn: 0.0000249,
+    cOut: 0.000096,
+  },
+  {
+    name: "gpt-4o-mini",
+    provider: "OpenAI",
+    mode: "chat",
+    tokenConversion: 1.3,
+    cIn: 0.0000062,
+    cOut: 0.0000249,
+  },
+  {
+    name: "2.5-flash",
+    provider: "Gemini",
+    mode: "chat",
+    tokenConversion: 1.3,
+    cIn: 0.000025,
+    cOut: 0.0001,
+  },
+  {
+    name: "2.0-flash",
+    provider: "Gemini",
+    mode: "chat",
+    tokenConversion: 1.3,
+    cIn: 0.000022,
+    cOut: 0.00009,
+  },
+  {
+    name: "1.5-flash",
+    provider: "Gemini",
+    mode: "chat",
+    tokenConversion: 1.3,
+    cIn: 0.00002,
+    cOut: 0.00008,
   },
 ];

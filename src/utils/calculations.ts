@@ -1,34 +1,58 @@
 import { CalculatorInputs, CalculatorResults } from '../types';
 
 export function calculateResults(inputs: CalculatorInputs): CalculatorResults {
-  // Determine which token factor to use based on mode
-  const tokenFactor = inputs.mode === 'chat' ? inputs.tokenFactor : inputs.tokenFactorAudio;
+  let inputTokens: number;
+  let outputTokens: number;
+  let totalCost: number;
   
-  // Chat Mode: Input tokens = a × (x / 2) × y × tokenFactor
-  // Voice Mode: Input tokens = a × (x / 2) × y × tokenFactor_audio
-  const inputTokens = inputs.a * (inputs.x / 2) * inputs.y * tokenFactor;
-  
-  // Chat Mode: Output tokens = b × (x / 2) × y × tokenFactor
-  // Voice Mode: Output tokens = b × (x / 2) × y × tokenFactor_audio
-  const outputTokens = inputs.b * (inputs.x / 2) * inputs.y * tokenFactor;
+  if (inputs.mode === 'chat') {
+    // Chat Mode Equations:
+    // Win  = a * (x / 2)
+    // Wout = b * (x / 2)
+    // Tin  = wordToToken * Win
+    // Tout = wordToToken * Wout
+    // TotalCost = y * ((Tin * Cin) + (Tout * Cout))
+    
+    const Win = inputs.a * (inputs.x / 2);
+    const Wout = inputs.b * (inputs.x / 2);
+    const Tin = inputs.wordToToken * Win;
+    const Tout = inputs.wordToToken * Wout;
+    
+    inputTokens = Tin;
+    outputTokens = Tout;
+    totalCost = inputs.y * ((Tin * inputs.cIn) + (Tout * inputs.cOut));
+  } else {
+    // Voice Mode Equations:
+    // UserDuration = T * (z / (1 + z))
+    // AIDuration   = T * (1 / (1 + z))
+    // Tin  = audioToToken * UserDuration
+    // Tout = audioToToken * AIDuration
+    // TotalCost = y * ((Tin * Cin) + (Tout * Cout))
+    
+    const userDuration = inputs.T * (inputs.z / (1 + inputs.z));
+    const aiDuration = inputs.T * (1 / (1 + inputs.z));
+    const Tin = inputs.audioToToken * userDuration;
+    const Tout = inputs.audioToToken * aiDuration;
+    
+    inputTokens = Tin;
+    outputTokens = Tout;
+    totalCost = inputs.y * ((Tin * inputs.cIn) + (Tout * inputs.cOut));
+  }
   
   // Total tokens = input tokens + output tokens
   const totalTokens = inputTokens + outputTokens;
   
-  // Input cost = input tokens × C_in
-  const inputCost = inputTokens * inputs.cIn;
+  // Input cost = input tokens × C_in × y
+  const inputCost = inputTokens * inputs.cIn * inputs.y;
   
-  // Output cost = output tokens × C_out
-  const outputCost = outputTokens * inputs.cOut;
+  // Output cost = output tokens × C_out × y
+  const outputCost = outputTokens * inputs.cOut * inputs.y;
   
-  // Total cost = input cost + output cost
-  const totalCost = inputCost + outputCost;
+  // Per-conversation cost
+  const perMessageCost = inputs.y > 0 ? totalCost / inputs.y : 0;
   
-  // Per-message cost = total cost / (x × y)
-  const perMessageCost = inputs.x * inputs.y > 0 ? totalCost / (inputs.x * inputs.y) : 0;
-  
-  // Per-pair cost = total cost / (x × y / 2) = total cost / total pairs
-  const totalPairs = (inputs.x * inputs.y) / 2;
+  // Per-pair cost (for chat mode)
+  const totalPairs = inputs.mode === 'chat' ? (inputs.x * inputs.y) / 2 : inputs.y;
   const perPairCost = totalPairs > 0 ? totalCost / totalPairs : 0;
   
   return {
