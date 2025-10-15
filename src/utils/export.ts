@@ -2,13 +2,28 @@ import { CalculatorInputs, CalculatorResults } from '../types';
 import { formatCurrency, formatNumber } from './calculations';
 
 export function exportToCSV(inputs: CalculatorInputs, results: CalculatorResults): void {
-  const csvContent = [
+  const rows: string[][] = [
     ['Parameter', 'Value'],
-    ['Total messages per conversation (x)', inputs.x.toString()],
+    ['Mode', inputs.mode],
     ['Number of conversations (y)', inputs.y.toString()],
-    ['Average words per user query (a)', inputs.a.toString()],
-    ['Average words per AI response (b)', inputs.b.toString()],
-    ['Token factor', inputs.tokenFactor.toString()],
+  ];
+
+  if (inputs.mode === 'chat') {
+    rows.push(
+      ['Total messages per conversation (x)', inputs.x.toString()],
+      ['Average words per user query (a)', inputs.a.toString()],
+      ['Average words per AI response (b)', inputs.b.toString()],
+      ['Word-to-token factor', inputs.wordToToken.toString()]
+    );
+  } else {
+    rows.push(
+      ['Total call duration (T)', inputs.T.toString()],
+      ['User:AI speaking ratio (z)', inputs.z.toString()],
+      ['Audio-to-token factor', inputs.audioToToken.toString()]
+    );
+  }
+
+  rows.push(
     ['Cost per input token (C_in)', formatCurrency(inputs.cIn)],
     ['Cost per output token (C_out)', formatCurrency(inputs.cOut)],
     [''],
@@ -19,9 +34,11 @@ export function exportToCSV(inputs: CalculatorInputs, results: CalculatorResults
     ['Input cost', formatCurrency(results.inputCost)],
     ['Output cost', formatCurrency(results.outputCost)],
     ['Total cost', formatCurrency(results.totalCost)],
-    ['Per-message cost', formatCurrency(results.perMessageCost)],
-    ['Per-pair cost', formatCurrency(results.perPairCost)],
-  ].map(row => row.join(',')).join('\n');
+    ['Per-conversation cost', formatCurrency(results.perMessageCost)],
+    ['Per-pair cost', formatCurrency(results.perPairCost)]
+  );
+
+  const csvContent = rows.map(row => row.join(',')).join('\n');
 
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');

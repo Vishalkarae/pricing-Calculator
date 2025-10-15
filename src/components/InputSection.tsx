@@ -97,14 +97,14 @@ export const InputSection: React.FC<InputSectionProps> = ({
         >
           <option value="-1">-- Select a model --</option>
           <optgroup label="🔵 OpenAI">
-            {openAIPresets.map((preset, idx) => (
+            {openAIPresets.map((preset) => (
               <option key={preset.name} value={MODEL_PRESETS.indexOf(preset)}>
                 {preset.name}
               </option>
             ))}
           </optgroup>
           <optgroup label="🟢 Gemini">
-            {geminiPresets.map((preset, idx) => (
+            {geminiPresets.map((preset) => (
               <option key={preset.name} value={MODEL_PRESETS.indexOf(preset)}>
                 {preset.name}
               </option>
