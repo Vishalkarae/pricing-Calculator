@@ -13,7 +13,7 @@ const initialInputs: CalculatorInputs = {
   wordToToken: 1.3,
   // Voice mode
   T: 60,
-  z: 0.5,
+  z: 0.75,
   audioToToken: 3.33,
   // Common
   y: 1,
