@@ -14,11 +14,12 @@ const initialInputs: CalculatorInputs = {
   // Voice mode
   T: 60,
   z: 0.5,
+  silenceFactor: 0.1,
   audioToToken: 3.33,
   // Common
   y: 1,
-  cIn: 0.0000062,
-  cOut: 0.0000249,
+  cIn: 0.00001253,
+  cOut: 0.00000627,
 };
 
 function App() {

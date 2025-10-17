@@ -6,37 +6,50 @@ export function calculateResults(inputs: CalculatorInputs): CalculatorResults {
   let totalCost: number;
   
   if (inputs.mode === 'chat') {
-    // Chat Mode Equations:
-    // Win  = a * (x / 2)
-    // Wout = b * (x / 2)
-    // Tin  = wordToToken * Win
-    // Tout = wordToToken * Wout
-    // TotalCost = y * ((Tin * Cin) + (Tout * Cout))
+    // Chat Mode Cumulative Equations:
+    // Tin  = p × (x/2) × (a⋅(x/2) + b⋅(x/2))
+    // Tout = p × b × (x/2)
+    // Cost = (Tin × Cin) + (Tout × Cout)
+    // TotalCost = y × Cost
     
-    const Win = inputs.a * (inputs.x / 2);
-    const Wout = inputs.b * (inputs.x / 2);
-    const Tin = inputs.wordToToken * Win;
-    const Tout = inputs.wordToToken * Wout;
+    const p = inputs.wordToToken;
+    const x = inputs.x;
+    const a = inputs.a;
+    const b = inputs.b;
+    
+    const Tin = p * (x / 2) * (a * (x / 2) + b * (x / 2));
+    const Tout = p * b * (x / 2);
     
     inputTokens = Tin;
     outputTokens = Tout;
-    totalCost = inputs.y * ((Tin * inputs.cIn) + (Tout * inputs.cOut));
+    const costPerConversation = (Tin * inputs.cIn) + (Tout * inputs.cOut);
+    totalCost = inputs.y * costPerConversation;
   } else {
     // Voice Mode Equations:
-    // UserDuration = T * (z / (1 + z))
-    // AIDuration   = T * (1 / (1 + z))
-    // Tin  = audioToToken * UserDuration
-    // Tout = audioToToken * AIDuration
-    // TotalCost = y * ((Tin * Cin) + (Tout * Cout))
+    // Ts = T × (1 - s)  [effective duration after removing silence]
+    // Tu = Ts × z / (1 + z)  [user duration]
+    // Tai = Ts - Tu  [AI duration]
+    // Tin  = Faudio × Tu
+    // Tout = Faudio × Tai
+    // Cost = (Tin × Cin) + (Tout × Cout)
+    // TotalCost = y × Cost
     
-    const userDuration = inputs.T * (inputs.z / (1 + inputs.z));
-    const aiDuration = inputs.T * (1 / (1 + inputs.z));
-    const Tin = inputs.audioToToken * userDuration;
-    const Tout = inputs.audioToToken * aiDuration;
+    const T = inputs.T;
+    const z = inputs.z;
+    const s = inputs.silenceFactor;
+    const Faudio = inputs.audioToToken;
+    
+    const Ts = T * (1 - s);
+    const Tu = Ts * z / (1 + z);
+    const Tai = Ts - Tu;
+    
+    const Tin = Faudio * Tu;
+    const Tout = Faudio * Tai;
     
     inputTokens = Tin;
     outputTokens = Tout;
-    totalCost = inputs.y * ((Tin * inputs.cIn) + (Tout * inputs.cOut));
+    const costPerConversation = (Tin * inputs.cIn) + (Tout * inputs.cOut);
+    totalCost = inputs.y * costPerConversation;
   }
   
   // Total tokens = input tokens + output tokens

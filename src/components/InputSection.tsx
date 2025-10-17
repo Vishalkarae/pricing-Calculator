@@ -217,6 +217,23 @@ export const InputSection: React.FC<InputSectionProps> = ({
                 />
               </div>
 
+              <div>
+                <label htmlFor="silenceFactor" className="block text-sm font-medium text-gray-700 mb-1">
+                  s — Silence factor (0–1)
+                </label>
+                <input
+                  type="number"
+                  id="silenceFactor"
+                  value={inputs.silenceFactor || ''}
+                  onChange={handleInputChange('silenceFactor')}
+                  min="0"
+                  max="1"
+                  step="0.01"
+                  placeholder="e.g., 0.1 for 10% silence"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                />
+              </div>
+
               <div className="md:col-span-2">
                 <label htmlFor="audioToToken" className="block text-sm font-medium text-gray-700 mb-1">
                   audioToToken — Tokens per second
