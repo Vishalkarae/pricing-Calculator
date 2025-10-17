@@ -19,6 +19,7 @@ export function exportToCSV(inputs: CalculatorInputs, results: CalculatorResults
     rows.push(
       ['Total call duration (T)', inputs.T.toString()],
       ['User:AI speaking ratio (z)', inputs.z.toString()],
+      ['Silence factor (s)', inputs.silenceFactor.toString()],
       ['Audio-to-token factor', inputs.audioToToken.toString()]
     );
   }
