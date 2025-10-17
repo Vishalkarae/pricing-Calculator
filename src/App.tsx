@@ -14,7 +14,6 @@ const initialInputs: CalculatorInputs = {
   // Voice mode
   T: 60,
   z: 0.5,
-  silenceFactor: 0.1,
   audioToToken: 3.33,
   // Common
   y: 1,

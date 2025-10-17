@@ -280,7 +280,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                   value={inputs.cIn || ''}
                   onChange={handleInputChange('cIn')}
                   min="0"
-                  step="0.00000001"
+                  // step="0.00000001"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
@@ -295,7 +295,7 @@ export const InputSection: React.FC<InputSectionProps> = ({
                   value={inputs.cOut || ''}
                   onChange={handleInputChange('cOut')}
                   min="0"
-                  step="0.00000001"
+                  // step="0.00000001"
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
               </div>
